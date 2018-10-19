@@ -33,44 +33,53 @@
 -include("pkt.hrl").
 
 -export([
-        checksum/1,
-        build_checksum/1,
-        codec/1, encode/1,
-        decapsulate/1, decapsulate/2,
-        decode/1, decode/2,
-        makesum/1,
-        ether/1,
-        ether_type/1,
-        mpls/1,
-        '802.1q'/1,
-	'802.1x'/1,
-        llc/1,
-        arp/1,
-        rarp/1,
-        lldp/1,
-        null/1,
-        gre/1,
-        linux_cooked/1,
-        icmp/1,
-        icmp6/1,
-        igmp/1,
-        ipv4/1,
-        ipv6/1,
-        vrrp/1,
-        ipv6_ah/1,
-        ipv6_dstopts/1,
-        ipv6_esp/1,
-        ipv6_fragment/1,
-        ipv6_hopopts/1,
-        ipv6_routing/1,
-        ipproto/1, proto/1,
-        tcp/1,
-        tcp_options/1,
-        udp/1,
-        sctp/1,
-        verify_checksum/1,
-        dlt/1, link_type/1
-]).
+         checksum/1,
+         build_checksum/1,
+         decapsulate/1, decapsulate/2,
+         decode/1, decode/2,
+         makesum/1,
+         ether/1,
+         ether_type/1,
+         mpls/1,
+         '802.1q'/1,
+         '802.1x'/1,
+         llc/1,
+         arp/1,
+         rarp/1,
+         lldp/1,
+         wol/1,
+         ctp/1,
+         lltd/1,
+         '802.11r'/1,
+         ouiext/1,
+         decmop/1,
+         xnscomp/1,
+         null/1,
+         gre/1,
+         linux_cooked/1,
+         icmp/1,
+         icmp6/1,
+         igmp/1,
+         ipv4/1,
+         ipv6/1,
+         vrrp/1,
+         ipv6_ah/1,
+         ipv6_dstopts/1,
+         ipv6_esp/1,
+         ipv6_fragment/1,
+         ipv6_hopopts/1,
+         ipv6_routing/1,
+         ipproto/1, proto/1,
+         tcp/1,
+         tcp_options/1,
+         udp/1,
+         sctp/1,
+         hip/1,
+         verify_checksum/1,
+         dlt/1, 
+         link_type/1,
+         unknown/1
+        ]).
 
 -type bit() :: 0 .. 1.
 -type in_port_t() :: 0 .. 16#ffff.
@@ -130,11 +139,29 @@ decapsulate_next({'802.1q', Data}, Headers) ->
 decapsulate_next({'802.1qinq', Data}, Headers) ->
     {Header, Payload} = '802.1q'(Data),
     decapsulate_next({next(Header), Payload}, [Header|Headers]);
-decapsulate_next({'802.1x', Data}, Headers) ->
-    {Header, Payload} = '802.1x'(Data),
-    lists:reverse([Payload, Header|Headers]);
 decapsulate_next({llc, Data}, Headers) ->
     {Header, Payload} = llc(Data),
+    lists:reverse([Payload, Header|Headers]);
+decapsulate_next({wol, Data}, Headers) ->
+    {Header, Payload} = wol(Data),
+    lists:reverse([Payload, Header|Headers]);
+decapsulate_next({ctp, Data}, Headers) ->
+    {Header, Payload} = ctp(Data),
+    lists:reverse([Payload, Header|Headers]);
+decapsulate_next({lltd, Data}, Headers) ->
+    {Header, Payload} = lltd(Data),
+    lists:reverse([Payload, Header|Headers]);
+decapsulate_next({'802.11r', Data}, Headers) ->
+    {Header, Payload} = '802.11r'(Data),
+    lists:reverse([Payload, Header|Headers]);
+decapsulate_next({ouiext, Data}, Headers) ->
+    {Header, Payload} = ouiext(Data),
+    lists:reverse([Payload, Header|Headers]);
+decapsulate_next({decmop, Data}, Headers) ->
+    {Header, Payload} = decmop(Data),
+    lists:reverse([Payload, Header|Headers]);
+decapsulate_next({xnscomp, Data}, Headers) ->
+    {Header, Payload} = xnscomp(Data),
     lists:reverse([Payload, Header|Headers]);
 
 decapsulate_next({ipv4, Data}, Headers) ->
@@ -186,6 +213,9 @@ decapsulate_next({udp, Data}, Headers) ->
 decapsulate_next({sctp, Data}, Headers) ->
     {Header, Payload} = sctp(Data),
     lists:reverse([Payload, Header|Headers]);
+decapsulate_next({hip, Data}, Headers) ->
+    {Header, Payload} = hip(Data),
+    lists:reverse([Payload, Header|Headers]);
 decapsulate_next({icmp, Data}, Headers) ->
     {Header, Payload} = icmp(Data),
     lists:reverse([Payload, Header|Headers]);
@@ -195,32 +225,30 @@ decapsulate_next({icmp6, Data}, Headers) ->
 decapsulate_next({igmp, Data}, Headers) ->
     {Header, Payload} = igmp(Data),
     lists:reverse([Payload, Header|Headers]);
+
+decapsulate_next({ospf, Data}, Headers) ->
+    {Header, Payload} = ospf(Data),
+    lists:reverse([Payload, Header|Headers]);
+decapsulate_next({pim, Data}, Headers) ->
+    {Header, Payload} = pim(Data),
+    lists:reverse([Payload, Header|Headers]);
+
+
+
 decapsulate_next({vrrp, Data}, Headers) ->
     {Header, Payload} = vrrp(Data),
     lists:reverse([Payload, Header | Headers]);
-
+decapsulate_next({'802.1x', Data}, Headers) ->
+    {Header, Payload} = '802.1x'(Data),
+    lists:reverse([Payload, Header|Headers]);
 % IPv6 NONE pseudo-header
 decapsulate_next({ipv6_none, Data}, Headers) ->
-    lists:reverse([Data|Headers]).
-
-codec(Data) when is_binary(Data) ->
-    decode(Data);
-codec(Data) ->
-    encode(Data).
-
-encode({Pdus, Payload}) when is_list(Pdus) or is_tuple(Pdus), is_binary(Payload) ->
-    PduBin = encode(Pdus),
-    <<PduBin/binary, Payload/binary>>;
-encode([]) -> <<>>;
-encode([H|R]) ->
-    B1 = encode(H),
-    B2 = encode(R),
-    <<B1/binary, B2/binary>>;
-encode(Data) when is_tuple(Data) ->
-    Proto = element(1, Data),
-    ?MODULE:Proto(Data);
-encode(Data) when is_binary(Data) ->
-    Data.
+    lists:reverse([Data|Headers]);
+% Unknown Type is not enabled. We will enable this later once it is in production.
+decapsulate_next({unknown, Data}, Headers) ->
+    {Header, Payload} = unknown(Data),
+    lists:reverse([Payload, Header|Headers]).
+    
 
 decode(Data) when is_binary(Data) ->
     decode(ether, Data).
@@ -249,6 +277,7 @@ decode_next({Proto, Data}, Headers) when
     Proto =:= linux_cooked;
     Proto =:= null;
     Proto =:= '802.1q';
+
     Proto =:= ipv6_ah;
     Proto =:= ipv6_dstopts;
     Proto =:= ipv6_esp;
@@ -257,12 +286,12 @@ decode_next({Proto, Data}, Headers) when
     Proto =:= ipv6_routing ->
 
     Decode = try ?MODULE:Proto(Data) of
-        N ->
-            {ok, N}
-    catch
-        error:_ ->
-            {error, lists:reverse(Headers), {Proto, Data}}
-    end,
+                 N ->
+                     {ok, N}
+             catch
+                 error:_ ->
+                     {error, lists:reverse(Headers), {Proto, Data}}
+             end,
 
     case Decode of
         {ok, {Header, Payload}} ->
@@ -287,16 +316,11 @@ decode_next({Proto, Data}, Headers) when
     Proto =:= arp;
     Proto =:= rarp;
     Proto =:= '802.1x';
-<<<<<<< HEAD
-    Proto =:= llc;
-=======
-    Proto =:= lldp;
->>>>>>> 892ecdd95189e88e3db35ddcdfa9f46c20a8f741
     Proto =:= icmp;
     Proto =:= icmp6;
     Proto =:= igmp;
     Proto =:= sctp;
-    Proto =:= sctp;
+    Proto =:= hip;
     Proto =:= tcp;
     Proto =:= udp ->
     try ?MODULE:Proto(Data) of
@@ -334,6 +358,7 @@ ether(N) ->
     pkt_ether:codec(N).
 
 ether_type(N) ->
+    %% For now, not handling the exception but rather crash to find out the unsupported EtherType
     pkt_ether:type(N).
 
 %% MPLS
@@ -352,6 +377,7 @@ rarp(N) ->
 lldp(N) ->
     pkt_lldp:codec(N).
 
+%% LLC
 llc(N) ->
     pkt_llc:codec(N).
 
@@ -361,6 +387,34 @@ llc(N) ->
 %% 802.1x
 '802.1x'(N) ->
     pkt_802_1x:codec(N).
+
+%% Wake-On-LAN
+wol(N) ->
+    pkt_wol:codec(N).
+
+%% Configuration Testing Protocol (Loopback)
+ctp(N) ->
+    pkt_ctp:codec(N).
+
+%% Link Layer Topology Discovery Protocol
+lltd(N) ->
+    pkt_lltd:codec(N).
+
+%% 802.11r Fast Roaming Remote Request
+'802.11r'(N) ->
+    pkt_802_11r:codec(N).
+
+%% IEEE OUI Extended
+ouiext(N) ->
+    pkt_ouiext:codec(N).
+
+%% DEC Maintenance Operation Protocol
+decmop(N) ->
+    pkt_decmop:codec(N).
+
+%% XNS Compatible 
+xnscomp(N) ->
+    pkt_xnscomp:codec(N).
 
 %% IPv4
 ipv4(N) ->
@@ -399,6 +453,10 @@ tcp_options(N) ->
 sctp(N) ->
     pkt_sctp:codec(N).
 
+%% SCTP
+hip(N) ->
+    pkt_hip:codec(N).
+
 %% UDP
 udp(N) ->
     pkt_udp:codec(N).
@@ -418,6 +476,14 @@ igmp(N) ->
 vrrp(N) ->
     pkt_vrrp:codec(N).
 
+%% OSPF
+ospf(N) ->
+    pkt_ospf:codec(N).
+
+%% PIM
+pim(N) ->
+    pkt_pim:codec(N).
+
 %% Datalink types
 link_type(N) ->
     dlt(N).
@@ -431,6 +497,10 @@ proto(N) ->
 
 ipproto(N) ->
     pkt_ipproto:codec(N).
+
+%% Unknown EtherType
+unknown(N) ->
+    pkt_unknown:codec(N).
 
 %% Protocol families: BSD NULL (loopback) linktype
 family(?PF_INET) -> ipv4;
@@ -496,77 +566,77 @@ checksum(#ipv4{} = H) ->
     checksum(ipv4(H));
 
 checksum([#ipv6{
-	     len = IPLen, next = Next,
-	     saddr = {SA1, SA2, SA3, SA4, SA5, SA6, SA7, SA8},
-	     daddr = {DA1, DA2, DA3, DA4, DA5, DA6, DA7, DA8}
-	    },
-	    #tcp{
+             len = IPLen, next = Next,
+             saddr = {SA1, SA2, SA3, SA4, SA5, SA6, SA7, SA8},
+             daddr = {DA1, DA2, DA3, DA4, DA5, DA6, DA7, DA8}
+            },
+            #tcp{
                  off = Off
             } = TCPhdr,
-	  Payload
-	 ]) when Next == ?IPPROTO_TCP ->
+          Payload
+         ]) when Next == ?IPPROTO_TCP ->
     PayloadLen = IPLen - (Off * 4),
     %% calculation of the TCP header
     TCP_Header = pkt:tcp(TCPhdr),
     pkt:checksum(
       <<
         %% calculation of the ipv6 pseudo header: rfc2460
-	SA1:16, SA2:16, SA3:16, SA4:16, SA5:16, SA6:16, SA7:16, SA8:16,
-	DA1:16, DA2:16, DA3:16, DA4:16, DA5:16, DA6:16, DA7:16, DA8:16,
+        SA1:16, SA2:16, SA3:16, SA4:16, SA5:16, SA6:16, SA7:16, SA8:16,
+        DA1:16, DA2:16, DA3:16, DA4:16, DA5:16, DA6:16, DA7:16, DA8:16,
         IPLen:32,
         0:24, Next:8,
         TCP_Header/binary,
         %% calculation of the padded payload
-	Payload:PayloadLen/binary>>
+        Payload:PayloadLen/binary>>
      );
 
 checksum([#ipv6{
-	     len = IPLen, next = Next,
-	     saddr = {SA1, SA2, SA3, SA4, SA5, SA6, SA7, SA8},
-	     daddr = {DA1, DA2, DA3, DA4, DA5, DA6, DA7, DA8}
-	    },
-	    #udp{
+             len = IPLen, next = Next,
+             saddr = {SA1, SA2, SA3, SA4, SA5, SA6, SA7, SA8},
+             daddr = {DA1, DA2, DA3, DA4, DA5, DA6, DA7, DA8}
+            },
+            #udp{
             } = UDPhdr,
-	  Payload
-	 ]) when Next == ?IPPROTO_UDP ->
+          Payload
+         ]) when Next == ?IPPROTO_UDP ->
     PayloadLen = IPLen - 8, % header offset for saddr, daddr is 8
     %% calculation of the UDP header
     UDP_Header = pkt:udp(UDPhdr),
     pkt:checksum(
       <<
         %% calculation of the ipv6 pseudo header: rfc2460
-	SA1:16, SA2:16, SA3:16, SA4:16, SA5:16, SA6:16, SA7:16, SA8:16,
-	DA1:16, DA2:16, DA3:16, DA4:16, DA5:16, DA6:16, DA7:16, DA8:16,
+        SA1:16, SA2:16, SA3:16, SA4:16, SA5:16, SA6:16, SA7:16, SA8:16,
+        DA1:16, DA2:16, DA3:16, DA4:16, DA5:16, DA6:16, DA7:16, DA8:16,
         IPLen:32,
         0:24, Next:8,
         UDP_Header/binary,
         %% calculation of the padded payload
-	Payload:PayloadLen/binary>>
+        Payload:PayloadLen/binary>>
      );
 
 checksum(#ipv6{} = H) ->
     checksum(ipv6(H));
 
 checksum(Bin) ->
- 	checksum(Bin, 0).
+        checksum(Bin, 0).
 
 checksum(<<N1:64/integer, N2:64/integer, N3:64/integer, N4:64/integer, N5:64/integer, N6:64/integer, N7:64/integer, N8:64/integer, ReminderBin/binary>>, Checksum128Bit) ->
- 	checksum(ReminderBin, N1+N2+N3+N4+N5+N6+N7+N8+Checksum128Bit);
+        checksum(ReminderBin, N1+N2+N3+N4+N5+N6+N7+N8+Checksum128Bit);
 
 checksum(<<N1:64/integer, N2:64/integer, N3:64/integer, N4:64/integer, ReminderBin/binary>>, Checksum128Bit) ->
- 	checksum(ReminderBin, N1+N2+N3+N4+Checksum128Bit);
+        checksum(ReminderBin, N1+N2+N3+N4+Checksum128Bit);
 
 checksum(<<N1:64/integer, N2:64/integer, ReminderBin/binary>>, Checksum128Bit) ->
- 	checksum(ReminderBin, N1+N2+Checksum128Bit);
+        checksum(ReminderBin, N1+N2+Checksum128Bit);
 
 checksum(<<N:64/integer, ReminderBin/binary>>, Checksum128Bit) ->
- 	checksum(ReminderBin, N+Checksum128Bit);
+        checksum(ReminderBin, N+Checksum128Bit);
 
 checksum(<<N:16/integer, ReminderBin/binary>>, Checksum128Bit) ->
- 	checksum(ReminderBin, N+Checksum128Bit);
+        checksum(ReminderBin, N+Checksum128Bit);
 
 checksum(<<N:8/integer>>, Checksum128Bit) ->
- 	checksum(<<>>, (N bsl 8)+Checksum128Bit);
+        checksum(<<>>, (N bsl 8)+Checksum128Bit);
 
 checksum(<<>>, Checksum128Bit) ->
         Checksum64Bit = foldWithOverflow64(Checksum128Bit),
@@ -576,35 +646,35 @@ checksum(<<>>, Checksum128Bit) ->
 
 foldWithOverflow64(A) ->
         C = A band 16#FFFFFFFFFFFFFFFF,
-	D = (A bsr 64) band 16#FFFFFFFFFFFFFFFF,
-	E = (C + D) band 16#FFFFFFFFFFFFFFFF,
+        D = (A bsr 64) band 16#FFFFFFFFFFFFFFFF,
+        E = (C + D) band 16#FFFFFFFFFFFFFFFF,
         case E < D of
-		true ->
-			E + 1; % overflow
-		false ->
-			E
+                true ->
+                        E + 1; % overflow
+                false ->
+                        E
          end.
 
 foldWithOverflow32(A) ->
         C = A band 16#FFFFFFFF,
-	D = (A bsr 32) band 16#FFFFFFFF,
-	E = (C + D) band 16#FFFFFFFF,
+        D = (A bsr 32) band 16#FFFFFFFF,
+        E = (C + D) band 16#FFFFFFFF,
         case E < D of
-		true ->
-			E + 1; % overflow
-		false ->
-			E
+                true ->
+                        E + 1; % overflow
+                false ->
+                        E
          end.
 
 foldWithOverflow16(A) ->
         C = A band 16#FFFF,
-	D = (A bsr 16) band 16#FFFF,
-	E = (C + D) band 16#FFFF,
+        D = (A bsr 16) band 16#FFFF,
+        E = (C + D) band 16#FFFF,
         case E < D of
-		true ->
-			E + 1; % overflow
-		false ->
-			E
+                true ->
+                        E + 1; % overflow
+                false ->
+                        E
          end.
 
 
@@ -617,7 +687,7 @@ makesum([IP, UDP, Payload]) when % handle UDP packets
     end;
 
 makesum(Hdr) ->
-	(checksum(Hdr) bxor 16#FFFF) band 16#FFFF. % bitwise-complement
+        (checksum(Hdr) bxor 16#FFFF) band 16#FFFF. % bitwise-complement
 
 %%Note:
 %% - Checksum building for tunneled packets according to RFC 6936 is not supported
