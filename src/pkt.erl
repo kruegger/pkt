@@ -35,6 +35,7 @@
 -export([
         checksum/1,
         build_checksum/1,
+        codec/1, encode/1,
         decapsulate/1, decapsulate/2,
         decode/1, decode/2,
         makesum/1,
@@ -202,6 +203,25 @@ decapsulate_next({vrrp, Data}, Headers) ->
 decapsulate_next({ipv6_none, Data}, Headers) ->
     lists:reverse([Data|Headers]).
 
+codec(Data) when is_binary(Data) ->
+    decode(Data);
+codec(Data) ->
+    encode(Data).
+
+encode({Pdus, Payload}) when is_list(Pdus) or is_tuple(Pdus), is_binary(Payload) ->
+    PduBin = encode(Pdus),
+    <<PduBin/binary, Payload/binary>>;
+encode([]) -> <<>>;
+encode([H|R]) ->
+    B1 = encode(H),
+    B2 = encode(R),
+    <<B1/binary, B2/binary>>;
+encode(Data) when is_tuple(Data) ->
+    Proto = element(1, Data),
+    ?MODULE:Proto(Data);
+encode(Data) when is_binary(Data) ->
+    Data.
+
 decode(Data) when is_binary(Data) ->
     decode(ether, Data).
 
@@ -267,7 +287,11 @@ decode_next({Proto, Data}, Headers) when
     Proto =:= arp;
     Proto =:= rarp;
     Proto =:= '802.1x';
+<<<<<<< HEAD
     Proto =:= llc;
+=======
+    Proto =:= lldp;
+>>>>>>> 892ecdd95189e88e3db35ddcdfa9f46c20a8f741
     Proto =:= icmp;
     Proto =:= icmp6;
     Proto =:= igmp;

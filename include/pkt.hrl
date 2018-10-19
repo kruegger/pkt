@@ -9,6 +9,9 @@
 -include("pkt_rarp.hrl").
 -include("pkt_lldp.hrl").
 -include("pkt_mpls.hrl").
+-include("pkt_wol.hrl").
+-include("pkt_ctp.hrl").
+-include("pkt_lltd.hrl").
 
 -include("pkt_gre.hrl").
 -include("pkt_icmp6.hrl").
@@ -20,6 +23,14 @@
 -include("pkt_linux_cooked.hrl").
 -include("pkt_null.hrl").
 -include("pkt_sctp.hrl").
+-include("pkt_hip.hrl").
 -include("pkt_tcp.hrl").
 -include("pkt_udp.hrl").
 -include("pkt_802_1x.hrl").
+-include("pkt_802_11r.hrl").
+-include("pkt_ouiext.hrl").
+-include("pkt_decmop.hrl").
+-include("pkt_xnscomp.hrl").
+-include("pkt_unknown.hrl").
+-include("pkt_ospf.hrl").
+-include("pkt_pim.hrl").
