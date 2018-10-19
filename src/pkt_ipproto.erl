@@ -42,8 +42,11 @@ codec(?IPPROTO_ICMPV6) -> icmp6;
 codec(?IPPROTO_TCP) -> tcp;
 codec(?IPPROTO_UDP) -> udp;
 codec(?IPPROTO_IPV6) -> ipv6;
+codec(?IPPROTO_OSPF) -> ospf;
+codec(?IPPROTO_PIM) -> pim;
 codec(?IPPROTO_VRRP) -> vrrp;
 codec(?IPPROTO_SCTP) -> sctp;
+codec(?IPPROTO_HIP) -> hip;
 codec(?IPPROTO_GRE) -> gre;
 codec(?IPPROTO_RAW) -> raw;
 
@@ -60,9 +63,12 @@ codec(igmp) -> ?IPPROTO_IGMP;
 codec(icmp6) -> ?IPPROTO_ICMPV6;
 codec(tcp) -> ?IPPROTO_TCP;
 codec(udp) -> ?IPPROTO_UDP;
+codec(ospf) -> ?IPPROTO_OSPF;
+codec(pim) -> ?IPPROTO_PIM;
 codec(ipv6) -> ?IPPROTO_IPV6;
 codec(vrrp) -> ?IPPROTO_VRRP;
 codec(sctp) -> ?IPPROTO_SCTP;
+codec(hip) -> ?IPPROTO_HIP;
 codec(gre) -> ?IPPROTO_GRE;
 
 codec(ipv6_hopopts) -> ?IPPROTO_HOPOPTS;
