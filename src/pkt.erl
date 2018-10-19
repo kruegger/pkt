@@ -129,6 +129,9 @@ decapsulate_next({'802.1q', Data}, Headers) ->
 decapsulate_next({'802.1qinq', Data}, Headers) ->
     {Header, Payload} = '802.1q'(Data),
     decapsulate_next({next(Header), Payload}, [Header|Headers]);
+decapsulate_next({'802.1x', Data}, Headers) ->
+    {Header, Payload} = '802.1x'(Data),
+    lists:reverse([Payload, Header|Headers]);
 decapsulate_next({llc, Data}, Headers) ->
     {Header, Payload} = llc(Data),
     lists:reverse([Payload, Header|Headers]);
@@ -194,9 +197,6 @@ decapsulate_next({igmp, Data}, Headers) ->
 decapsulate_next({vrrp, Data}, Headers) ->
     {Header, Payload} = vrrp(Data),
     lists:reverse([Payload, Header | Headers]);
-decapsulate_next({'802.1x', Data}, Headers) ->
-    {Header, Payload} = '802.1x'(Data),
-    lists:reverse([Payload, Header|Headers]);
 
 % IPv6 NONE pseudo-header
 decapsulate_next({ipv6_none, Data}, Headers) ->
@@ -229,7 +229,6 @@ decode_next({Proto, Data}, Headers) when
     Proto =:= linux_cooked;
     Proto =:= null;
     Proto =:= '802.1q';
-
     Proto =:= ipv6_ah;
     Proto =:= ipv6_dstopts;
     Proto =:= ipv6_esp;
@@ -268,6 +267,7 @@ decode_next({Proto, Data}, Headers) when
     Proto =:= arp;
     Proto =:= rarp;
     Proto =:= '802.1x';
+    Proto =:= llc;
     Proto =:= icmp;
     Proto =:= icmp6;
     Proto =:= igmp;
