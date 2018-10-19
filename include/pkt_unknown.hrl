@@ -1,0 +1,1 @@
+-record(unknown, {ethertype, protocol, payload}).

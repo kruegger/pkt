@@ -1,0 +1,3 @@
+-record(xnscomp, {
+	  payload
+	 }).
