@@ -37,7 +37,6 @@
 type(?ETH_P_IP) -> ipv4;
 type(?ETH_P_IPV6) -> ipv6;
 type(?ETH_P_ARP) -> arp;
-type(?ETH_P_RARP) -> rarp;
 type(?ETH_P_LLDP) -> lldp;
 %% IEEE 802.3 Ethernet
 type(EtherType) when EtherType < 16#05DC -> llc;
@@ -49,7 +48,27 @@ type(?ETH_P_802_1X) -> '802.1x';
 type(?ETH_P_802_1QinQ) -> '802.1qinq';
 %% MPLS_
 type(?ETH_P_MPLS_UNI) -> mpls;
-type(?ETH_P_MPLS_MULTI) -> mpls.
+type(?ETH_P_MPLS_MULTI) -> mpls;
+%% Configuration Testing Protocol(Loopback)
+type(?ETH_P_CTP) -> ctp;
+%% Wake-On-LAN
+type(?ETH_P_WOL) -> wol;
+%% Link Layer Topology Discovery Protocol
+type(?ETH_P_LLTD) -> lltd;
+%% IEEE STD 802 - OUI Extended
+type(?ETH_P_IEEE_OUI_EXT) -> ouiext;
+%% 802.11r Fast Roaming Remote Request
+type(?ETH_P_802_11R) -> '802.11r';
+%% XNS Compatible
+type(?ETH_P_XNS_COMPATIBLE) -> xnscomp;
+
+%% DEC Maintenance Operation Protocol 
+type(?ETH_P_DECMOP) -> decmop.
+
+%% Unknown EtherType - we will enable this later once it is in production
+%%type(-) -> unknown.
+
+    
 
 codec(<<Dhost:6/bytes, Shost:6/bytes, Type:16, Payload/binary>>) ->
 %    Len = byte_size(Packet) - 4,
