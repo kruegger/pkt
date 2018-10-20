@@ -42,6 +42,7 @@
          ether_type/1,
          mpls/1,
          '802.1q'/1,
+         ipx/1,
          '802.1x'/1,
          llc/1,
          arp/1,
@@ -135,6 +136,9 @@ decapsulate_next({mpls, Data}, Headers) ->
     decapsulate_next({Next, Payload}, [Header|Headers]);
 decapsulate_next({'802.1q', Data}, Headers) ->
     {Header, Payload} = '802.1q'(Data),
+    decapsulate_next({next(Header), Payload}, [Header|Headers]);
+decapsulate_next({ipx, Data}, Headers) ->
+    {Header, Payload} = ipx(Data),
     decapsulate_next({next(Header), Payload}, [Header|Headers]);
 decapsulate_next({'802.1qinq', Data}, Headers) ->
     {Header, Payload} = '802.1q'(Data),
@@ -383,6 +387,10 @@ llc(N) ->
 
 '802.1q'(N) ->
     pkt_802_1q:codec(N).
+
+%% IPX
+ipx(N) ->
+    pkt_ipx:codec(N).
 
 %% 802.1x
 '802.1x'(N) ->
