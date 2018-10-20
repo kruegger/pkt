@@ -1,6 +1,7 @@
 -define(IPX_UNKNOWN_TYPE, 16#00).
 -define(IPX_RIP_TYPE, 16#01).
 -define(IPX_ECHO_TYPE, 16#02).
+-define(IPX_ERROR_TYPE, 16#03).
 -define(IPX_PEP_TYPE, 16#04).
 -define(IPX_SPX_TYPE, 16#05).
 -define(IPX_NCP_TYPE, 16#11).
