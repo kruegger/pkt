@@ -139,7 +139,7 @@ decapsulate_next({'802.1q', Data}, Headers) ->
     decapsulate_next({next(Header), Payload}, [Header|Headers]);
 decapsulate_next({ipx, Data}, Headers) ->
     {Header, Payload} = ipx(Data),
-    decapsulate_next({next(Header), Payload}, [Header|Headers]);
+    lists:reverse([Payload, Header|Headers]);
 decapsulate_next({'802.1qinq', Data}, Headers) ->
     {Header, Payload} = '802.1q'(Data),
     decapsulate_next({next(Header), Payload}, [Header|Headers]);
@@ -317,16 +317,17 @@ decode_next({ipv6_none, Data}, Headers) ->
     {ok, {lists:reverse(Headers), Data}};
 
 decode_next({Proto, Data}, Headers) when
-    Proto =:= arp;
-    Proto =:= rarp;
-    Proto =:= '802.1x';
-    Proto =:= icmp;
-    Proto =:= icmp6;
-    Proto =:= igmp;
-    Proto =:= sctp;
-    Proto =:= hip;
-    Proto =:= tcp;
-    Proto =:= udp ->
+      Proto =:= arp;
+      Proto =:= rarp;
+      Proto =:= ipx;
+      Proto =:= '802.1x';
+      Proto =:= icmp;
+      Proto =:= icmp6;
+      Proto =:= igmp;
+      Proto =:= sctp;
+      Proto =:= hip;
+      Proto =:= tcp;
+      Proto =:= udp ->
     try ?MODULE:Proto(Data) of
         {Header, Payload} ->
             {ok, {lists:reverse([Header|Headers]), Payload}}
