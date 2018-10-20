@@ -7,6 +7,7 @@
 -define(ETH_P_RARP, 16#8035).
 -define(ETH_P_IPV6, 16#86DD).
 -define(ETH_P_802_1Q, 16#8100).
+-define(ETH_P_IPX, 16#8137).
 -define(ETH_P_802_1X, 16#888E).
 -define(ETH_P_802_1QinQ, 16#88a8).
 -define(ETH_P_LLDP, 16#88CC).
