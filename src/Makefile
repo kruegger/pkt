@@ -8,6 +8,7 @@ MODULES= pkt	\
 	pkt_arp	\
 	pkt_rarp	\
 	pkt_802_1q	\
+	pkt_ipx	\
 	pkt_802_1x	\
 	pkt_vrrp	\
 	pkt_ospf	\

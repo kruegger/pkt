@@ -1,4 +1,4 @@
-%% Copyright (c) 2009-2016, Michael Santos <michael.santos@gmail.com>
+%% Copyright (c) 2009-2015, Michael Santos <michael.santos@gmail.com>
 %% All rights reserved.
 %%
 %% Redistribution and use in source and binary forms, with or without
@@ -28,59 +28,22 @@
 %% LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 %% ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 %% POSSIBILITY OF SUCH DAMAGE.
--module(pkt_ether).
 
--include("pkt_ether.hrl").
+%% Internetworking Packet Exchange
+-module(pkt_ipx).
 
--export([codec/1, type/1]).
+-include("pkt_ipx.hrl").
 
-type(?ETH_P_IP) -> ipv4;
-type(?ETH_P_IPV6) -> ipv6;
-type(?ETH_P_ARP) -> arp;
-type(?ETH_P_LLDP) -> lldp;
-%% IEEE 802.3 Ethernet
-type(EtherType) when EtherType < 16#05DC -> llc;
-%% 802.1Q Virtual LAN
-type(?ETH_P_802_1Q) -> '802.1q';
-%% IPX
-type(?ETH_P_IPX) -> ipx;
-%% 802.1X EAPoL
-type(?ETH_P_802_1X) -> '802.1x';
-%% 802.1ad (802.1q QinQ)
-type(?ETH_P_802_1QinQ) -> '802.1qinq';
-%% MPLS_
-type(?ETH_P_MPLS_UNI) -> mpls;
-type(?ETH_P_MPLS_MULTI) -> mpls;
-%% Configuration Testing Protocol(Loopback)
-type(?ETH_P_CTP) -> ctp;
-%% Wake-On-LAN
-type(?ETH_P_WOL) -> wol;
-%% Link Layer Topology Discovery Protocol
-type(?ETH_P_LLTD) -> lltd;
-%% IEEE STD 802 - OUI Extended
-type(?ETH_P_IEEE_OUI_EXT) -> ouiext;
-%% 802.11r Fast Roaming Remote Request
-type(?ETH_P_802_11R) -> '802.11r';
-%% XNS Compatible
-type(?ETH_P_XNS_COMPATIBLE) -> xnscomp;
+-export([codec/1]).
 
-%% DEC Maintenance Operation Protocol 
-type(?ETH_P_DECMOP) -> decmop.
-
-%% Unknown EtherType - we will enable this later once it is in production
-%%type(-) -> unknown.
-
-    
-
-codec(<<Dhost:6/bytes, Shost:6/bytes, Type:16, Payload/binary>>) ->
-%    Len = byte_size(Packet) - 4,
-%    <<Payload:Len/bytes, CRC:4/bytes>> = Packet,
-    {#ether{
-       dhost = Dhost, shost = Shost,
-       type = Type
-      }, Payload};
-codec(#ether{
-       dhost = Dhost, shost = Shost,
-       type = Type
-      }) ->
-    <<Dhost:6/bytes, Shost:6/bytes, Type:16>>.
+codec(<<CSUM:16, Len:16, Control:8, Type:8, DADDR:12/bytes, SADDR:12/bytes, Payload/binary>>) ->
+    {#ipx{
+        csum = CSUM,
+        len = Len,
+        control = Control,
+        type = Type,
+        daddr = DADDR,
+        saddr = SADDR
+    }, Payload};
+codec(#ipx{csum = 16#FFFF, len = Len, control = Control, type = Type, daddr = DADDR, saddr = SADDR}) ->
+    <<16#FFFF:16, Len:16, Control:8, Type:8, DADDR:12/bytes, SADDR:12/bytes>>.
