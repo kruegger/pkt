@@ -44,6 +44,7 @@ MODULES= pkt	\
 	pkt_ouiext	\
 	pkt_decmop	\
 	pkt_dec_lanbridge	\
+	pkt_mint	\
 	pkt_xnscomp	\
 	pkt_unknown
 

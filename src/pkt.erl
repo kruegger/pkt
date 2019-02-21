@@ -53,6 +53,8 @@
          lltd/1,
          '802.11r'/1,
          ouiext/1,
+         dec_lanbridge/1,
+         mint/1,
          decmop/1,
          xnscomp/1,
          null/1,
@@ -166,6 +168,9 @@ decapsulate_next({decmop, Data}, Headers) ->
     lists:reverse([Payload, Header|Headers]);
 decapsulate_next({dec_lanbridge, Data}, Headers) ->
     {Header, Payload} = dec_lanbridge(Data),
+    lists:reverse([Payload, Header|Headers]);
+decapsulate_next({mint, Data}, Headers) ->
+    {Header, Payload} = mint(Data),
     lists:reverse([Payload, Header|Headers]);
 decapsulate_next({xnscomp, Data}, Headers) ->
     {Header, Payload} = xnscomp(Data),
@@ -426,6 +431,10 @@ ouiext(N) ->
 %% DEC LANBridge Protocol
 dec_lanbridge(N) ->
     pkt_dec_lanbridge:codec(N).
+
+%% Media Independent Network Transport
+mint(N) ->
+    pkt_mint:codec(N).
 
 %% DEC Maintenance Operation Protocol
 decmop(N) ->

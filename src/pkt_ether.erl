@@ -69,7 +69,11 @@ type(?ETH_P_DECMOP) -> decmop;
 
 %% DEC LANBridge Protocol
 type(?ETH_P_DEC_LANBRIDGE) ->
-    dec_lanbridge.
+    dec_lanbridge;
+
+%% Motorola MiNT Ethertype
+type(?ETH_P_MINT) ->
+     mint.
 
 %% Unknown EtherType - we will enable this later once it is in production
 %%type(-) -> unknown.

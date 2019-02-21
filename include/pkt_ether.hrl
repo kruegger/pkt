@@ -9,6 +9,7 @@
 -define(ETH_P_802_1Q, 16#8100).
 -define(ETH_P_IPX, 16#8137).
 -define(ETH_P_DEC_LANBRIDGE, 16#8038).
+-define(ETH_P_MINT, 16#8783).
 -define(ETH_P_802_1X, 16#888E).
 -define(ETH_P_802_1QinQ, 16#88a8).
 -define(ETH_P_LLDP, 16#88CC).

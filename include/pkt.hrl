@@ -37,3 +37,4 @@
 -include("pkt_ospf.hrl").
 -include("pkt_eigrp.hrl").
 -include("pkt_pim.hrl").
+-include("pkt_mint.hrl").
