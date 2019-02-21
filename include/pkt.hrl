@@ -35,4 +35,5 @@
 -include("pkt_xnscomp.hrl").
 -include("pkt_unknown.hrl").
 -include("pkt_ospf.hrl").
+-include("pkt_eigrp.hrl").
 -include("pkt_pim.hrl").
