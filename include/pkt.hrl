@@ -31,6 +31,7 @@
 -include("pkt_802_11r.hrl").
 -include("pkt_ouiext.hrl").
 -include("pkt_decmop.hrl").
+-include("pkt_dec_lanbridge.hrl").
 -include("pkt_xnscomp.hrl").
 -include("pkt_unknown.hrl").
 -include("pkt_ospf.hrl").
