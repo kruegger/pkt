@@ -236,6 +236,9 @@ decapsulate_next({igmp, Data}, Headers) ->
 decapsulate_next({ospf, Data}, Headers) ->
     {Header, Payload} = ospf(Data),
     lists:reverse([Payload, Header|Headers]);
+decapsulate_next({eigrp, Data}, Headers) ->
+    {Header, Payload} = eigrp(Data),
+    lists:reverse([Payload, Header|Headers]);
 decapsulate_next({pim, Data}, Headers) ->
     {Header, Payload} = pim(Data),
     lists:reverse([Payload, Header|Headers]);
@@ -495,6 +498,10 @@ vrrp(N) ->
 %% OSPF
 ospf(N) ->
     pkt_ospf:codec(N).
+
+%% EIGRP
+eigrp(N) ->
+    pkt_eigrp:codec(N).
 
 %% PIM
 pim(N) ->
