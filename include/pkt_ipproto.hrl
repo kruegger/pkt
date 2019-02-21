@@ -6,6 +6,7 @@
 -define(IPPROTO_IPV6, 41).
 -define(IPPROTO_GRE, 47).
 -define(IPPROTO_ICMPV6, 58).
+-define(IPPROTO_EIGRP, 88).
 -define(IPPROTO_OSPF, 89).
 -define(IPPROTO_PIM, 103).
 -define(IPPROTO_VRRP, 112).
