@@ -65,7 +65,11 @@ type(?ETH_P_802_11R) -> '802.11r';
 type(?ETH_P_XNS_COMPATIBLE) -> xnscomp;
 
 %% DEC Maintenance Operation Protocol 
-type(?ETH_P_DECMOP) -> decmop.
+type(?ETH_P_DECMOP) -> decmop;
+
+%% DEC LANBridge Protocol
+type(?ETH_P_DEC_LANBRIDGE) ->
+    dec_lanbridge.
 
 %% Unknown EtherType - we will enable this later once it is in production
 %%type(-) -> unknown.

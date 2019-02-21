@@ -42,6 +42,7 @@ MODULES= pkt	\
 	pkt_802_11r \
 	pkt_ouiext	\
 	pkt_decmop	\
+	pkt_dec_lanbridge	\
 	pkt_xnscomp	\
 	pkt_unknown
 

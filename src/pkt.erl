@@ -164,6 +164,9 @@ decapsulate_next({ouiext, Data}, Headers) ->
 decapsulate_next({decmop, Data}, Headers) ->
     {Header, Payload} = decmop(Data),
     lists:reverse([Payload, Header|Headers]);
+decapsulate_next({dec_lanbridge, Data}, Headers) ->
+    {Header, Payload} = dec_lanbridge(Data),
+    lists:reverse([Payload, Header|Headers]);
 decapsulate_next({xnscomp, Data}, Headers) ->
     {Header, Payload} = xnscomp(Data),
     lists:reverse([Payload, Header|Headers]);
@@ -416,6 +419,10 @@ lltd(N) ->
 %% IEEE OUI Extended
 ouiext(N) ->
     pkt_ouiext:codec(N).
+
+%% DEC LANBridge Protocol
+dec_lanbridge(N) ->
+    pkt_dec_lanbridge:codec(N).
 
 %% DEC Maintenance Operation Protocol
 decmop(N) ->
