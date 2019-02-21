@@ -12,6 +12,7 @@ MODULES= pkt	\
 	pkt_802_1x	\
 	pkt_vrrp	\
 	pkt_ospf	\
+	pkt_eigrp	\
 	pkt_pim	\
 	pkt_udp	\
 	pkt_tcp	\
