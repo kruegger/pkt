@@ -42,7 +42,7 @@ codec(?IPPROTO_ICMPV6) -> icmp6;
 codec(?IPPROTO_TCP) -> tcp;
 codec(?IPPROTO_UDP) -> udp;
 codec(?IPPROTO_IPV6) -> ipv6;
-codec(?EIGRP) -> eigrp;
+codec(?IPPROTO_EIGRP) -> eigrp;
 codec(?IPPROTO_OSPF) -> ospf;
 codec(?IPPROTO_PIM) -> pim;
 codec(?IPPROTO_VRRP) -> vrrp;
