@@ -37,6 +37,6 @@
 -export([codec/1]).
 
 codec(Payload) when is_binary(Payload) ->
-    #xnscomp{payload = Payload};
+    {#xnscomp{payload = Payload}, []};
 codec(#xnscomp{payload = Payload}) when is_binary(Payload) ->
     Payload.
