@@ -37,6 +37,6 @@
 -export([codec/1]).
 
 codec(Payload) when is_binary(Payload) ->
-    #dec_lanbridge{payload = Payload};
+    {#dec_lanbridge{payload = Payload}, []};
 codec(#dec_lanbridge{payload = Payload}) when is_binary(Payload) ->
     Payload.
