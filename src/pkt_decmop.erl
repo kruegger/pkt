@@ -37,6 +37,6 @@
 -export([codec/1]).
 
 codec(Payload) when is_binary(Payload) ->
-    #decmop{payload = Payload};
+    {#decmop{payload = Payload}, []};
 codec(#decmop{payload = Payload}) when is_binary(Payload) ->
     Payload.
