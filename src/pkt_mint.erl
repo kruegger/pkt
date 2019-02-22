@@ -37,6 +37,6 @@
 -export([codec/1]).
 
 codec(Payload) when is_binary(Payload) ->
-    #mint{payload = Payload};
+    {#mint{payload = Payload}, []};
 codec(#mint{payload = Payload}) when is_binary(Payload) ->
     Payload.
