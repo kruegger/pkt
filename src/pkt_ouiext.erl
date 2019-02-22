@@ -37,6 +37,6 @@
 -export([codec/1]).
 
 codec(Payload) when is_binary(Payload) ->
-    #ouiext{payload = Payload};
+    {#ouiext{payload = Payload}, []};
 codec(#ouiext{payload = Payload}) when is_binary(Payload) ->
     Payload.
