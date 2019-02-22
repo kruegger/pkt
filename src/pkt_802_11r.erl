@@ -37,6 +37,6 @@
 -export([codec/1]).
 
 codec(Payload) when is_binary(Payload) ->
-    #'802.11r'{payload = Payload};
+    {#'802.11r'{payload = Payload}, []};
 codec(#'802.11r'{payload = Payload}) when is_binary(Payload) ->
     Payload.
